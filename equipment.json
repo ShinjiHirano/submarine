@@ -1,0 +1,18 @@
+{
+  "sonars": [
+    { "id": "towed_array_01", "name": "曳航式ソナー (TAS)", "type": "PASSIVE", "sensitivity": 85, "selfNoiseTolerance": 40 },
+    { "id": "hull_sonar_ww2", "name": "船体装備ソナー", "type": "PASSIVE", "sensitivity": 72, "selfNoiseTolerance": 52 },
+    { "id": "active_array_01", "name": "能動ソナー", "type": "ACTIVE", "range": 8000, "cooldown": 35, "layerPenalty": 0.75 }
+  ],
+  "engines": [
+    { "id": "aip_module", "name": "AIP非大気依存推進", "maxSpeedBonus": -2, "noiseReduction": 0.4 }
+  ],
+  "weapons": [
+    { "id": "torpedo_533mm", "name": "533mm 有線誘導魚雷", "speed": 45, "range": 12000, "warhead": 250, "guidance": "WIRE_GUIDED", "ammo": 4, "cooldown": 22, "damage": 70, "radius": 100, "seekerRange": 1300, "turnRate": 8, "diveRate": 5 },
+    { "id": "homing_torpedo", "name": "自律追尾魚雷", "speed": 48, "range": 10000, "warhead": 230, "guidance": "HOMING", "ammo": 2, "cooldown": 25, "damage": 65, "radius": 100, "seekerRange": 2200, "turnRate": 10, "diveRate": 6 },
+    { "id": "depth_charge_mk9", "name": "Mk.9 爆雷", "speed": 0, "range": 500, "warhead": 140, "guidance": "DEPTH_CHARGE", "ammo": 12, "cooldown": 8, "damage": 85, "radius": 480, "sinkRate": 12 },
+    { "id": "hedgehog", "name": "ヘッジホッグ", "speed": 0, "range": 1800, "warhead": 180, "guidance": "DEPTH_CHARGE", "ammo": 6, "cooldown": 18, "damage": 75, "radius": 400, "sinkRate": 18 },
+    { "id": "asroc", "name": "対潜ロケット魚雷", "speed": 42, "range": 9000, "warhead": 230, "guidance": "ROCKET_TORPEDO", "ammo": 3, "cooldown": 30, "damage": 70, "radius": 110, "seekerRange": 1800, "turnRate": 10, "diveRate": 8 },
+    { "id": "acoustic_decoy", "name": "音響デコイ", "guidance": "DECOY", "ammo": 3, "cooldown": 30, "duration": 65, "radius": 2300 }
+  ]
+}

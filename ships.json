@@ -1,0 +1,18 @@
+{
+  "ships": [
+    {
+      "id": "type_212a", "name": "212A型潜水艦", "callsign": "U-32", "type": "SUBMARINE", "country": "Germany",
+      "maxSpeed": 20, "maxDepth": 300, "baseNoise": 12, "health": 100, "turnRate": 3, "acceleration": 0.5, "diveRate": 2,
+      "engine": "aip_module", "sonarSlots": ["towed_array_01"], "activeSonar": "active_array_01",
+      "weaponSlots": ["torpedo_533mm", "homing_torpedo", "acoustic_decoy"],
+      "description": "静粛性を武器に、深海から接近。水温躍層に隠れ、魚雷で一撃を狙う。"
+    },
+    {
+      "id": "fletcher_class", "name": "フレッチャー級駆逐艦", "callsign": "DD-445", "type": "DESTROYER", "country": "USA",
+      "maxSpeed": 38, "maxDepth": 0, "baseNoise": 60, "health": 120, "turnRate": 4, "acceleration": 0.8, "diveRate": 0,
+      "sonarSlots": ["hull_sonar_ww2"], "activeSonar": "active_array_01",
+      "weaponSlots": ["depth_charge_mk9", "hedgehog", "asroc", "acoustic_decoy"],
+      "description": "能動ソナーで海中を照射。高速で距離を詰め、対潜兵装で包囲する。"
+    }
+  ]
+}

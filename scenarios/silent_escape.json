@@ -1,0 +1,56 @@
+{
+  "id": "silent_escape",
+  "title": "お手本05 — 撃たずに帰れ",
+  "category": "架空・潜水艦からの離脱",
+  "playerShip": "type_212a",
+  "briefing": "敵潜水艦に位置を測られた状態から開始します。交戦規定により攻撃は禁止、デコイは使用できます。まず速力で距離を取り、魚雷接近時はデコイと変針で回避。離脱区域付近では減速して自己雑音を抑えます。この演習は区域への生還を成功とし、敵の接触喪失そのものは判定しません。",
+  "lessons": [
+    "攻撃禁止・デコイ使用可",
+    "接近魚雷を避けて距離を取る",
+    "終盤は減速して離脱"
+  ],
+  "objective": {
+    "type": "ESCAPE",
+    "title": "生存して離脱区域へ到達せよ",
+    "description": "攻撃せず、15分以内に南西の離脱区域へ生還。区域到達を成功条件とする演習です。",
+    "zone": {
+      "x": -1500,
+      "y": 1800,
+      "radius": 450
+    }
+  },
+  "policy": {
+    "mode": "ESCAPE",
+    "quietWithin": 700,
+    "quietSpeed": 6
+  },
+  "overrides": {
+    "seed": 605,
+    "name": "北大西洋・架空の非交戦離脱区",
+    "timeLimit": 900,
+    "initialDetection": true,
+    "start": {
+      "player": {
+        "heading": 260,
+        "speed": 8,
+        "depth": 160
+      },
+      "enemy": {
+        "x": 2200,
+        "y": 200,
+        "heading": 250,
+        "speed": 8,
+        "depth": 170
+      }
+    },
+    "ai": {
+      "firstPing": 10,
+      "firstAttack": 12,
+      "attackInterval": 600
+    }
+  },
+  "enemyShip": "type_212a",
+  "rules": {
+    "noAttack": true
+  }
+}

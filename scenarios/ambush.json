@@ -1,0 +1,8 @@
+{
+  "id": "ambush", "title": "お手本02 — 待つ勇気", "category": "架空・待ち伏せ", "playerShip": "type_212a",
+  "briefing": "敵の通過が予想される海域で待機します。最初の90秒は推進を止めて聞き、待機後に得られた接触情報から攻撃位置を判断します。海流による漂流は残ります。",
+  "lessons": ["動かずに待つ判断", "受動ソナーで接触を追う", "待機後に測距・攻撃"],
+  "objective": { "type": "DESTROY", "title": "待ち伏せから敵艦を撃破せよ", "description": "自動運用は90秒の待機後に接近・攻撃へ移行。警報時は待機を中断して回避します。" },
+  "policy": { "mode": "AMBUSH", "holdSeconds": 90 },
+  "overrides": { "seed": 302, "name": "北大西洋・架空の哨戒航路", "start": { "player": { "heading": 0, "speed": 0 }, "enemy": { "x": 600, "y": -3000, "heading": 180, "speed": 12 } }, "ai": { "firstPing": 180, "firstAttack": 400, "attackInterval": 200 } }
+}

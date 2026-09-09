@@ -1,0 +1,43 @@
+{
+  "id": "duel",
+  "title": "お手本04 — 深海の対決",
+  "category": "架空・潜水艦対潜水艦",
+  "playerShip": "type_212a",
+  "enemyShip": "type_212a",
+  "briefing": "互いに潜航する潜水艦同士の対決です。静かな敵を受動ソナーで探し、必要に応じてピンで距離と深度を確認します。測定した敵深度に魚雷を設定し、敵魚雷への回避にも備えてください。",
+  "lessons": [
+    "静かな潜水艦を探知",
+    "敵深度を測って攻撃",
+    "魚雷とデコイの応酬"
+  ],
+  "objective": {
+    "type": "DESTROY",
+    "title": "敵潜水艦を撃破せよ",
+    "description": "25分以内に敵潜水艦を撃破。魚雷の攻撃深度は観測した敵深度に合わせます。"
+  },
+  "overrides": {
+    "seed": 504,
+    "name": "北大西洋・架空の深海哨戒区",
+    "start": {
+      "player": {
+        "x": 0,
+        "y": 1000,
+        "heading": 0,
+        "depth": 160,
+        "speed": 5
+      },
+      "enemy": {
+        "x": 1000,
+        "y": -1500,
+        "heading": 160,
+        "depth": 180,
+        "speed": 6
+      }
+    },
+    "ai": {
+      "firstPing": 180,
+      "firstAttack": 260,
+      "attackInterval": 160
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "scenarios": [
+    {
+      "id": "stealth",
+      "file": "stealth.json"
+    },
+    {
+      "id": "ambush",
+      "file": "ambush.json"
+    },
+    {
+      "id": "escape",
+      "file": "escape.json"
+    },
+    {
+      "id": "duel",
+      "file": "duel.json"
+    },
+    {
+      "id": "silent_escape",
+      "file": "silent_escape.json"
+    },
+    {
+      "id": "original",
+      "file": "original.json"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "id": "stealth", "title": "お手本01 — 静かな接近", "category": "架空・隠密接近", "playerShip": "type_212a",
+  "briefing": "敵の捜索が本格化する前に、低速で接近して攻撃機会を作ります。距離が不確かなときだけピンで確認し、発射後は離脱します。",
+  "lessons": ["低速で方位を観測", "ピンの利益と危険を判断", "約2 kmで攻撃・離脱"],
+  "objective": { "type": "DESTROY", "title": "接近して敵艦を撃破せよ", "description": "隠密性を重視しながら敵艦を撃破。未発見の維持は成功条件ではありません。" },
+  "overrides": { "seed": 212, "ai": { "firstPing": 220, "firstAttack": 320, "attackInterval": 160 } }
+}
