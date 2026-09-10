@@ -4,13 +4,13 @@
 
 ## 起動
 
-Node.js 20以上とPython 3がある環境で、プロジェクトのディレクトリから実行します。追加パッケージのインストールやビルドは不要です。
+Docker Desktop（またはDocker EngineとDocker Compose）がある環境で、プロジェクトのディレクトリから実行します。Node.js、Python、追加パッケージのインストールは不要です。
 
 ```sh
-npm start
+docker compose up --build
 ```
 
-ブラウザで **http://localhost:5173** を開いてください。終了はターミナルで `Ctrl+C`。Pythonだけでも `python3 -m http.server 5173 --bind 127.0.0.1` で起動できます。JSONを読み込むため、`index.html` の直接オープンには対応していません。実行時に外部サービスや追加パッケージは不要です。効果音はブラウザ内で生成し、日本語報告の音声ファイルを同梱しています。
+ブラウザで **http://localhost/game/submarine** を開いてください（`/game/submarine/` が正規URLです）。終了はターミナルで `Ctrl+C`。バックグラウンドで起動する場合は `docker compose up --build -d`、停止は `docker compose down` を使います。JSONを読み込むため、`index.html` の直接オープンには対応していません。実行時に外部サービスや追加パッケージは不要です。効果音はブラウザ内で生成し、日本語報告の音声ファイルを同梱しています。
 
 ## 士官チームの自動運用を観戦
 

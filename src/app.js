@@ -69,7 +69,7 @@ async function load() {
     }
     chooseScenario(selectedScenario.id); $('scenario-select').disabled = false; $('start-btn').disabled = false; $('auto-start-btn').disabled = false; setText('start-btn', '任務を開始する →');
     setText('load-status', '1人用 / 敵AI対戦 · 所要時間 約5〜25分 · 音声なしでプレイ可能');
-  } catch (error) { setText('load-status', `読み込みに失敗しました：${error.message}。npm start で起動し、http://localhost:5173 を開いてください。`); }
+  } catch (error) { setText('load-status', `読み込みに失敗しました：${error.message}。docker compose up --build で起動し、http://localhost/game/submarine/ を開いてください。`); }
 }
 function chooseScenario(id) {
   selectedScenario = scenarios.find(s => s.id === id);
