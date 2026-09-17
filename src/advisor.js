@@ -26,6 +26,10 @@ export function advise(v, equipment, config, memory = {}) {
     const depth = p.spec.maxDepth ? Math.min(safeDepth, config.thermocline + 80) : 0;
     return choice('evade', '魚雷接近。回避を優先してください', '音の発生源へ敵魚雷を誘い、自艦は大きく変針して離れます。生存を優先するため、一時的に高速航行します。', `${useDecoy ? 'デコイ1基を消費。' : decoyActive ? '展開済みデコイを利用。' : 'デコイは使用できません。'}針路 ${heading}°、速力 ${p.maxSpeed} kt${p.spec.maxDepth ? `、深度 ${depth} m` : ''}。`, { type: 'evade', values: { heading, speed: p.maxSpeed, depth }, decoy: useDecoy }, 'defend', 'decoy-btn');
   }
+  if (p.spec.maxDepth && v.survey?.level === 'danger' && v.survey.clearance !== null) {
+    const surveyedDepth = Math.max(0, Math.min(safeDepth, Math.floor((Math.max(p.depth, p.order.depth) + v.survey.clearance - 40) / 5) * 5));
+    return choice('survey-grounding', '測量士が前方の浅い海底を報告しています', '指示針路の先1.2 kmにある既知の海底と、その誤差から余裕を見積もりました。接近する前に深度を浅くします。', `目標深度 ${surveyedDepth} m、速力4 kt。発信は行いません。`, { type: 'order', values: { depth: surveyedDepth, speed: 4 } }, 'defend', 'depth');
+  }
   if (v.time < (memory.evadeUntil || 0)) return choice('evading', '安全な距離まで離脱します', '接近警報は消えました。急いで元の針路へ戻らず、回避を終えてから索敵に戻ります。', `あと ${Math.ceil(memory.evadeUntil - v.time)} 秒、現在の針路を維持。`);
   const sonar = equipment.sonars.find(s => s.id === p.spec.activeSonar);
   const pingReady = p.pingReady <= v.time;
@@ -73,7 +77,7 @@ export class Advisor {
     if (view.contact?.source === 'ACTIVE') this.memory.observationStarted = view.time;
     const mission = config.mission;
     const option = (id, title, why, changes, action, lesson = 'defend') => ({ id, title, why, changes, action, lesson, focus: 'heading', report, options: [] });
-    if (!['ended', 'grounding', 'evade', 'evading'].includes(base.id)) {
+    if (!['ended', 'grounding', 'survey-grounding', 'evade', 'evading'].includes(base.id)) {
       if (mission?.objective.type === 'ESCAPE') {
         const goal = mission.objective.zone, p = view.player, heading = Math.round(bearing(p, goal));
         const depth = Math.max(0, Math.min(p.spec.maxDepth, config.thermocline + 80, Math.floor((view.bottom - config.bottom.clearance - 25) / 5) * 5));
@@ -88,7 +92,7 @@ export class Advisor {
         return option('mission-ambush', '推進を止めて、敵の接近を待ちます', '敵の通過が予想される海域です。追いかけず、受動ソナーで観測します。海流による漂流は続きます。警報時は待機を中断して回避します。', `待機終了まで ${Math.ceil(mission.policy.holdSeconds - view.time)}秒。指示速力0 kt。ピン・兵装は使いません。`, view.player.order.speed !== 0 || !this.memory.ambushOrdered ? { type: 'order', intent: 'ambush', values: { speed: 0 } } : null, 'listen');
       }
     }
-    if (view.player.spec.type !== 'SUBMARINE' || ['ended', 'grounding', 'evade', 'evading', 'empty'].includes(base.id)) return { ...base, report, options: [] };
+    if (view.player.spec.type !== 'SUBMARINE' || ['ended', 'grounding', 'survey-grounding', 'evade', 'evading', 'empty'].includes(base.id)) return { ...base, report, options: [] };
     const options = submarineOptions(view, equipment, config, this.memory, report);
     return { ...options[0], report, options };
   }

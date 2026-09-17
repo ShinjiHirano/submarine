@@ -1,4 +1,10 @@
 {
-  "name": "silent-depth", "version": "1.0.0", "private": true, "type": "module",
-  "scripts": { "test": "node --test", "check": "node --check src/game.js && node --check src/app.js && node --check src/audio.js && node --check src/advisor.js && node --check src/officer.js && node --check src/crew.js && node --check src/scenarios.js" }
+  "name": "silent-depth",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/game.js && node --check src/app.js && node --check src/audio.js && node --check src/advisor.js && node --check src/officer.js && node --check src/crew.js && node --check src/scenarios.js && node --check src/survey.js && node --check src/tactical.js"
+  }
 }

@@ -1,3 +1,4 @@
+import { TacticalView } from './tactical.js';
 import { Game, bearing, distance, clamp } from './game.js';
 import { GameAudio } from './audio.js';
 import { Advisor, LESSONS } from './advisor.js';
@@ -5,6 +6,7 @@ import { Crew } from './crew.js';
 import { loadScenarios } from './scenarios.js';
 let scenarios = [], selectedScenario;
 let crew, autoCommand = false;
+let replayIndex = null, replayPlaying = false, replayElapsed = 0;
 let selectedOfficerOption = null, lastOfficerReport = '', lastOfficerReportAt = -Infinity;
 let advisor = new Advisor(), currentAdvice = null, guideEnabled = true, advisorMessage = '', lessonAudio = false;
 try { guideEnabled = localStorage.getItem('silent-depth.guide') !== 'off'; } catch { /* Optional preference. */ }
@@ -14,6 +16,15 @@ const timeLabel = t => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(
 const degree = v => `${String(Math.round(v) % 360).padStart(3, '0')}°`;
 let ships, equipment, config, game, selectedShip, selectedWeapon, paused = true, rate = 1, range = 10000, last = 0, uiAt = 0, logId = -1, resultShown = false, helpWasPaused = true;
 const canvas = $('sonar'), ctx = canvas.getContext('2d');
+const tactical = new TacticalView($('tactical'));
+$('reduce-effects').checked = tactical.reduced;
+$('camera-left').onclick = () => { tactical.yaw -= 20; };
+$('camera-right').onclick = () => { tactical.yaw += 20; };
+function wideCameraRange() { const v = replayIndex !== null ? game?.replayAt(replayIndex) : null; return v ? Math.max(3400, distance(v.player, v.replay.enemy) * 1.4) : 3400; }
+$('camera-zoom').onclick = () => { tactical.range = tactical.range === 2000 ? wideCameraRange() : 2000; setText('camera-zoom', tactical.range === 2000 ? '広域' : '拡大'); };
+$('camera-reset').onclick = () => { tactical.yaw = -25; tactical.range = wideCameraRange(); setText('camera-zoom', '拡大'); };
+$('show-layer').onchange = e => { tactical.layer = e.target.checked; };
+$('reduce-effects').onchange = e => { tactical.reduced = e.target.checked; };
 const startDialog = $('start-dialog');
 startDialog.showModal();
 for (const dialog of [startDialog, $('result-dialog')]) dialog.addEventListener('cancel', e => e.preventDefault());
@@ -86,10 +97,14 @@ function chooseScenario(id) {
   $('scenario-lessons').replaceChildren(...selectedScenario.lessons.map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
   prepare();
 }
+$('chart-mode').onchange = () => { if (ships) prepare(); };
 $('scenario-select').onchange = () => chooseScenario($('scenario-select').value);
 function prepare() {
   audio.reset();
   advisor = new Advisor(); selectedOfficerOption = null; lastOfficerReport = ''; lastOfficerReportAt = -Infinity; currentAdvice = null; advisorMessage = ''; lessonAudio = false;
+  config.chartMode = $('chart-mode').value;
+  tactical.reset(); tactical.range = 3400; tactical.yaw = -25; setText('camera-zoom', '拡大'); replayIndex = null; replayPlaying = false;
+  $('replay-controls').hidden = true; $('replay-reopen').hidden = true; $('surveyor-console').hidden = false; setText('tactical-source', '海図・観測情報から再構成'); setText('tactical-title', '3D戦術ビュー');
   game = new Game(ships, equipment, config, selectedShip); selectedWeapon = game.player.spec.weaponSlots.find(id => game.weapon(id).guidance !== 'DECOY');
   crew = new Crew(equipment, config, advisor); autoCommand = false;
   paused = true; rate = 1; resultShown = false; logId = -1;
@@ -146,6 +161,7 @@ $('attack-depth').oninput = updateOrders;
 $('silent-btn').onclick = () => { if (game && !autoCommand) { game.order({ speed: 4 }); syncOrders(); game.log('静粛航行を指示。速力4 ktへ減速。', 'info', { sound: 'command', clip: 'silent', report: '微速、4ノット。静粛航行に移ります。' }); } };
 $('evade-btn').onclick = () => { if (game && !autoCommand) { game.order({ heading: game.player.heading + 80, speed: game.player.maxSpeed, depth: game.player.spec.maxDepth ? Math.min(game.player.spec.maxDepth, config.thermocline + 80) : 0 }); syncOrders(); game.log('回避機動を指示。変針・増速します。', 'warning', { sound: 'command', clip: 'evade', report: '回避機動。変針、増速します。', priority: 1 }); } };
 $('ping-btn').onclick = () => { if (running() && !autoCommand) { game.ping(); render(); } };
+$('survey-scan').onclick = () => { if (running() && !autoCommand) { game.ping(); render(); } };
 $('fire-btn').onclick = () => { if (running() && !autoCommand) { game.fire(selectedWeapon, Number($('attack-depth').value)); render(); } };
 $('decoy-btn').onclick = () => { if (running() && !autoCommand) { game.fire('acoustic_decoy'); render(); } };
 $('pause-btn').onclick = () => { if (!game || game.result) return; lessonAudio = false; advisorMessage = ''; paused = !paused; if (!paused) audio.unlock(); render(); };
@@ -153,6 +169,17 @@ $('rate-btn').onclick = () => { rate = rate === 8 ? 1 : rate * 2; render(); };
 $('range-btn').onclick = () => { range = range === 10000 ? 5000 : range === 5000 ? 15000 : 10000; setText('range-btn', `${range / 1000} km ↻`); setText('radar-range', `RANGE ${(range / 1000).toFixed(1)} km`); document.querySelector('.bottom-right').textContent = `GRID / ${range / 4000} km`; };
 function restart() { $('result-dialog').close(); prepare(); startDialog.showModal(); }
 $('restart-btn').onclick = restart; $('play-again').onclick = restart;
+function openReplay() {
+  if (!game?.result) return;
+  $('result-dialog').close(); replayIndex = 0; replayPlaying = false; replayElapsed = 0; tactical.reset(); tactical.range = wideCameraRange(); setText('camera-zoom', '拡大'); setText('tactical-source', '任務終了後・全情報公開');
+  $('replay-time').max = game.replayLength() - 1; $('replay-time').value = 0;
+  $('replay-controls').hidden = false; $('surveyor-console').hidden = true; setText('tactical-title', '3D戦闘リプレイ'); setText('replay-play', '▶ 再生');
+  $('tactical-title').scrollIntoView({ block: 'start' });
+}
+$('replay-open').onclick = openReplay; $('replay-reopen').onclick = openReplay;
+$('replay-close').onclick = () => { replayIndex = null; replayPlaying = false; $('replay-controls').hidden = true; tactical.range = 3400; setText('camera-zoom', '拡大'); $('surveyor-console').hidden = false; setText('tactical-source', '海図・観測情報から再構成'); setText('tactical-title', '3D戦術ビュー'); tactical.reset(); };
+$('replay-play').onclick = () => { if (replayIndex >= game.replayLength() - 1) { replayIndex = 0; tactical.reset(); } replayPlaying = !replayPlaying; setText('replay-play', replayPlaying ? 'Ⅱ 停止' : '▶ 再生'); };
+$('replay-time').oninput = e => { replayIndex = Number(e.target.value); tactical.reset(); };
 $('review-run').onclick = () => $('result-dialog').close();
 $('help-btn').onclick = () => { helpWasPaused = paused; lessonAudio = false; paused = true; $('help-dialog').showModal(); render(); };
 $('close-help').onclick = () => $('help-dialog').close();
@@ -306,6 +333,14 @@ function renderCrew(v) {
 function render() {
   if (!game) return;
   const v = game.view(), p = v.player, c = v.contact;
+  setText('crew-surveyor', v.survey.report);
+  setText('surveyor-report', v.survey.report);
+  $('surveyor-report').dataset.level = v.survey.level;
+  setText('chart-coverage', `周辺1.8 km：既知 ${v.survey.known}% / 測深済 ${v.survey.measured}%`);
+  $('survey-meter').style.width = `${v.survey.measured}%`;
+  const scanCooldown = Math.max(0, Math.ceil(p.pingReady - v.time));
+  $('survey-scan').disabled = autoCommand || !running() || scanCooldown > 0;
+  setText('survey-scan-status', autoCommand ? '発信は艦長の判断に従います' : scanCooldown ? `次の発信まで ${scanCooldown}秒` : '敵に自艦方位が伝わります');
   renderAdvisor(v);
   renderCrew(v);
   const soundAllowed = !startDialog.open && !$('help-dialog').open && !document.hidden;
@@ -315,6 +350,7 @@ function render() {
     audio.speak(`ソナーより報告。${report.title}。${report.reasons[0]}`, report.level === 'danger' ? 2 : 1, report.level === 'danger' ? 'alarm' : report.level === 'caution' ? 'officer-caution' : 'officer-unknown');
     lastOfficerReport = report.title; lastOfficerReportAt = performance.now();
   }
+  $('replay-reopen').hidden = !v.result;
   $('audio-test').disabled = !running();
   const objective = config.mission?.objective;
   setText('objective-progress', objective?.type === 'ESCAPE' ? `離脱区域まで ${(Math.max(0, distance(p, objective.zone) - objective.zone.radius) / 1000).toFixed(2)} km` : config.mission?.policy.mode === 'AMBUSH' && v.time < config.mission.policy.holdSeconds ? `待機終了まで ${Math.ceil(config.mission.policy.holdSeconds - v.time)}秒` : '成功条件：敵艦撃破');
@@ -427,6 +463,18 @@ function frame(now) {
     }
   }
   if (now - uiAt > 150) { render(); uiAt = now; }
-  draw(now); requestAnimationFrame(frame);
+  draw(now);
+  if (game) {
+    if (replayIndex !== null) {
+      if (replayPlaying && !document.hidden && !$('help-dialog').open) {
+        replayElapsed += dt * 4;
+        if (replayElapsed >= 1) { replayIndex = Math.min(game.replayLength() - 1, replayIndex + Math.floor(replayElapsed)); replayElapsed %= 1; }
+        if (replayIndex >= game.replayLength() - 1) { replayPlaying = false; setText('replay-play', '▶ 再生'); }
+      }
+      const replay = game.replayAt(replayIndex);
+      if (replay) { tactical.draw(replay, config.thermocline); $('replay-time').value = replayIndex; setText('replay-clock', timeLabel(replay.time)); }
+    } else tactical.draw(game.view(), config.thermocline);
+  }
+  requestAnimationFrame(frame);
 }
 load(); requestAnimationFrame(frame);

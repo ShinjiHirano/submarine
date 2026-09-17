@@ -9,6 +9,7 @@ export function prepareCrewOrder(view, advice, equipment, config) {
     weapons: `攻撃兵装の残数 ${p.spec.weaponSlots.filter(id => equipment.weapons.find(w => w.id === id)?.guidance !== 'DECOY').reduce((sum, id) => sum + (p.ammo[id] || 0), 0)}。測距と射撃機会を監視。`,
     engineering: `実速 ${p.speed.toFixed(1)} kt、深度 ${Math.round(p.depth)} m。${view.cavitating ? '気泡発生を確認。静粛性が低下。' : '機関状態を監視。'}`,
     navigation: `現針路 ${Math.round(p.heading)}°、指示 ${Math.round(p.order.heading)}°。海底まで ${Math.round(view.bottom - p.depth)} m。`,
+    surveyor: view.survey?.report || '海底情報を確認中。',
     captain: advice.title
   };
   let veto = '';
